@@ -1,0 +1,112 @@
+<html>  
+ <head>  
+  <script type="application/javascript">
+	
+	var WIDTH;
+  
+    function start() {  
+      var canvas = document.getElementById("canvas");  
+	  WIDTH = canvas.width;
+      if (canvas.getContext) {  
+        var ctx = canvas.getContext("2d");  
+   
+		var current, swap, temp;
+		var arr1 = new Array(canvas.width*canvas.height);
+		var arr2 = new Array(canvas.width*canvas.height);
+		for (var i = 0; i < arr1.length; i++) {
+			arr1[i] = false;
+			arr2[i] = false;
+		}
+		current = arr1;
+		swap = arr2;
+		
+		for (var i = 0; i < 2000; i++) {
+			current[Math.floor(Math.random()*current.length)] = true;
+		}
+		
+		var loop = function() {
+			ctx.fillStyle = "rgb(255,255,255)";
+			ctx.fillRect(0, 0, canvas.width, canvas.height);
+			ctx.fillStyle = "rgb(0,0,0)";
+		
+			draw(ctx, current);
+			
+			iterate(current, swap);
+		
+			temp = current;
+			current = swap;
+			swap = temp;
+			
+			setTimeout(loop, 20);
+			};
+			
+		loop();
+      }  
+    }
+	
+	function iterate(current, swap) {	
+		for (var i = 0; i < current.length; i++) {
+			var numAdj = numAdjacent(current, i);
+			
+			swap[i] = current[i];
+			
+			if (current[i] == true) {
+				if (numAdj < 2 || numAdj > 3) {
+					swap[i] = false;
+				} 
+			} else if (numAdj == 3) {
+					swap[i] = true;
+			}
+		}
+				
+	}
+	
+	function numAdjacent(arr, val) {
+		var num = 0;
+		var adjacentCoords = [[getX(val)-1, getY(val)-1],
+							[getX(val), getY(val)-1],
+							[getX(val)+1, getY(val)-1],
+							[getX(val)-1, getY(val)],
+							[getX(val)+1, getY(val)],
+							[getX(val)-1, getY(val)+1],
+							[getX(val), getY(val)+1],
+							[getX(val)+1, getY(val)+1]];
+		var maxX = getX(arr.length-1);
+		var maxY = getY(arr.length-1);
+		
+		for (var i = 0; i < adjacentCoords.length; i++) {
+			if (adjacentCoords[i][0] <= maxX && adjacentCoords[i][1] <= maxY) {
+				if (arr[getPos(adjacentCoords[i][0], adjacentCoords[i][1])] == true) {
+					num++;
+				}
+			}
+		}
+		
+		return num;							
+	}
+	
+	function draw(ctx, arr) {
+		for (var i = 0; i < arr.length; i++) {
+			if (arr[i] == true) {
+				ctx.fillRect(getX(i), getY(i), 1, 1);
+			}
+		}
+	}
+	
+	function getX(pos) {
+		return pos % WIDTH;
+	}
+	
+	function getY(pos) {
+		return Math.floor(pos / WIDTH);
+	}
+	
+	function getPos(x, y) {
+		return y * WIDTH + x
+	}
+  </script>  
+ </head>  
+ <body onload="start();">  
+   <canvas id="canvas" width="150" height="150"></canvas>  
+ </body>  
+</html> 
